@@ -4,9 +4,13 @@ WIDTH , HEIGHT = 1200,800
 WIN  = pygame.display.set_mode((WIDTH,HEIGHT))
 pygame.display.set_caption("First Game Ever!")
 
+BLACK =(0,0,0)
 WHITE=(255,255,255)
+BORDER = pygame.Rect(595,0,10,HEIGHT)
+
 
 FPS = 60
+VEL=5
 SPACE_SHIP_WIDTH , SPACE_SHIP_HEIGHT = 55,40
 
 YELLOW_SPACESHIP =pygame.image.load(os.path.join('python-games1','spaceship_yellow.png'))
@@ -14,16 +18,38 @@ YELLOW_SPACESHIP= pygame.transform.rotate(pygame.transform.scale(YELLOW_SPACESHI
 RED_SPACESHIP =pygame.image.load(os.path.join('python-games1','spaceship_red.png'))
 RED_SPACESHIP = pygame.transform.rotate(pygame.transform.scale(RED_SPACESHIP,(SPACE_SHIP_WIDTH,SPACE_SHIP_HEIGHT)),270)
 
+def yellow_handle_movement(key_pressed,yellow):
+    if key_pressed[pygame.K_a] and yellow.x-VEL>0:#left
+        yellow.x-=VEL
+    if key_pressed[pygame.K_d] and yellow.x + VEL+yellow.width <BORDER.x:#right
+        yellow.x+=VEL
+    if key_pressed[pygame.K_w] and yellow.y-VEL>0:#up
+        yellow.y-=VEL
+    if key_pressed[pygame.K_s] and yellow.y+VEL+yellow.height<HEIGHT-10:#down
+        yellow.y+=VEL
 
+def red_handle_movement(key_pressed,red):
+    if key_pressed[pygame.K_LEFT] and red.x - VEL>BORDER.x+BORDER.width:#left
+        red.x-=VEL
+    if key_pressed[pygame.K_RIGHT] and red.x+VEL+red.width<WIDTH:#right
+        red.x+=VEL
+    if key_pressed[pygame.K_UP] and red.y - VEL >0:#up
+        red.y-=VEL
+    if key_pressed[pygame.K_DOWN] and red.y +VEL +red.height<HEIGHT-10:#down
+        red.y+=VEL 
 
-def draw_window():
+def draw_window(red,yellow):
     WIN.fill(WHITE)
-    WIN.blit(YELLOW_SPACESHIP,(980,350))
-    WIN.blit(RED_SPACESHIP,(200,350))
+    WIN.blit(YELLOW_SPACESHIP,(yellow.x,yellow.y))
+    WIN.blit(RED_SPACESHIP,(red.x,red.y))
+    pygame.draw.rect(WIN,BLACK,BORDER)
     pygame.display.update()
 
-
 def main():
+    
+    red = pygame.Rect(900,350,SPACE_SHIP_WIDTH , SPACE_SHIP_HEIGHT)
+    yellow = pygame.Rect(200,350,SPACE_SHIP_WIDTH , SPACE_SHIP_HEIGHT)
+    
     Clock = pygame.time.Clock()
     run = True
     while run:
@@ -31,10 +57,12 @@ def main():
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 run = False
-        draw_window()        
-        
+        draw_window(red,yellow)        
+        key_pressed = pygame.key.get_pressed()
+        yellow_handle_movement(key_pressed,yellow)
+        red_handle_movement(key_pressed,red)       
     pygame.quit()
-    
+
     
 if __name__ =="__main__":
     main()
