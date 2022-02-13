@@ -6,6 +6,8 @@ pygame.display.set_caption("First Game Ever!")
 
 BLACK =(0,0,0)
 WHITE=(255,255,255)
+RED=(255,0,0)
+YELLOW = (255,255,0)
 BORDER = pygame.Rect(595,0,10,HEIGHT)
 
 
@@ -14,6 +16,9 @@ VEL=5
 BULLETS_VEL = 7
 MAX_BULLET = 3
 SPACE_SHIP_WIDTH , SPACE_SHIP_HEIGHT = 55,40
+
+YELLOW_HIT = pygame.USEREVENT+1
+RED_HIT = pygame.USEREVENT+2
 
 YELLOW_SPACESHIP =pygame.image.load(os.path.join('python-games1','spaceship_yellow.png'))
 YELLOW_SPACESHIP= pygame.transform.rotate(pygame.transform.scale(YELLOW_SPACESHIP,(SPACE_SHIP_WIDTH,SPACE_SHIP_HEIGHT)),90)
@@ -41,16 +46,31 @@ def red_handle_movement(key_pressed,red):
         red.y+=VEL 
 
 def handle_bullets(yellow_bullets,red_bullets,yellow,red):
-    pass
+    for bullet in yellow_bullets:
+        bullet.x+=BULLETS_VEL
+        if red.colliderect(bullet):
+            pygame.event.post(pygame.event.Event(RED_HIT))
+            yellow_bullets.remove(bullet)
+    for bullet in red_bullets:
+        bullet.x-=BULLETS_VEL
+        if yellow.colliderect(bullet):
+            pygame.event.post(pygame.event.Event(YELLOW_HIT))
+            red_bullets.remove(bullet)
 
-
-def draw_window(red,yellow):
+def draw_window(red,yellow,red_bullets,yellow_bullets):
     WIN.fill(WHITE)
     WIN.blit(YELLOW_SPACESHIP,(yellow.x,yellow.y))
     WIN.blit(RED_SPACESHIP,(red.x,red.y))
     pygame.draw.rect(WIN,BLACK,BORDER)
-    pygame.display.update()
+    
+    
+    for bullet in red_bullets:
+        pygame.draw.rect(WIN,RED,bullet)
 
+    for bullet in yellow_bullets:
+        pygame.draw.rect(WIN,YELLOW,bullet)
+        
+    pygame.display.update()
 def main():
     
     red = pygame.Rect(900,350,SPACE_SHIP_WIDTH , SPACE_SHIP_HEIGHT)
@@ -69,14 +89,14 @@ def main():
 
             if event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_LCTRL and len(yellow_bullets)<MAX_BULLET:
-                    bullet=pygame.Rect(yellow.x+yellow.width,yellow.y+yellow.height/2-2,10,5)
+                    bullet=pygame.Rect(yellow.x+yellow.width,yellow.y+yellow.height//2-2,10,5)
                     yellow_bullets.append(bullet)
                 
                 if event.key == pygame.K_RCTRL and len(red_bullets)<MAX_BULLET:    
-                    bullet=pygame.Rect(red.x,red.y+red.height/2-2,10,5)
+                    bullet=pygame.Rect(red.x,red.y+red.height//2-2,10,5)
                     red_bullets.append(bullet)
         
-        draw_window(red,yellow)        
+        draw_window(red,yellow,red_bullets,yellow_bullets)        
         key_pressed = pygame.key.get_pressed()
         yellow_handle_movement(key_pressed,yellow)
         red_handle_movement(key_pressed,red)       
